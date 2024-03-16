@@ -1,0 +1,48 @@
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+# Sample database to store exam questions
+exam_questions = [
+    {
+        'id': 1,
+        'question': 'What is the capital of France?',
+        'answer': 'Paris',
+        'type': 'multiple_choice'
+    },
+    {
+        'id': 2,
+        'question': 'Write a short essay on climate change.',
+        'answer': None,
+        'type': 'essay'
+    }
+    # Add more questions as needed
+]
+
+# Route to fetch exam questions
+@app.route('/exam/questions', methods=['GET'])
+def get_exam_questions():
+    return jsonify(exam_questions)
+
+# Route to submit exam answers and get instant results
+@app.route('/exam/submit', methods=['POST'])
+def submit_exam():
+    submitted_answers = request.json  # Assuming JSON format for submitted answers
+    score = calculate_score(submitted_answers)
+    return jsonify({'score': score})
+
+# Function to calculate score based on submitted answers
+def calculate_score(submitted_answers):
+    total_score = 0
+    for submitted_answer in submitted_answers:
+        for question in exam_questions:
+            if question['id'] == submitted_answer['id']:
+                if question['type'] == 'multiple_choice':
+                    if submitted_answer['answer'] == question['answer']:
+                        total_score += 1
+                # Add more logic for other question types (e.g., essay)
+                break
+    return total_score
+
+if __name__ == '__main__':
+    app.run(debug=True)
